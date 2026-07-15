@@ -26,8 +26,8 @@ Adopted as specified:
 **One addition, not in the source table:** `react-router-dom` — required for a multi-page site (Home / About / Portfolio hub / 6 competency pages / Contact) to have real, linkable, bookmarkable URLs. Flagging it explicitly since it wasn't in the original list.
 
 **Fit notes for this specific project:**
-- **React Query** has no real job on day one — there's no API, and content is static. Install it per stack consistency, but don't wire it up until there's an actual async data source (e.g., if artifact files move to a CMS or object-storage listing endpoint later). Don't invent a fetch layer just to use it.
-- **Tremor** (charts) likewise has nothing to chart yet. Keep it available for a plausible future need (a CV timeline, a publication-count chart on the Research page) rather than treating it as required scaffolding now.
+- **React Query** has no real job on day one — there's no API, and content is static. Rather than pre-installing it as unused dead weight, **defer `npm install` until there's an actual async data source** (e.g., if artifact files move to a CMS or object-storage listing endpoint later). Don't invent a fetch layer just to use it, and don't add the dependency before that need exists.
+- **Tremor** (charts) likewise has nothing to chart yet — same call: **don't install it at scaffold time.** If a real need shows up later (a CV timeline, a publication-count chart on the Research page), add it then. Keeping both out of `package.json` until they're load-bearing keeps the dependency tree honest about what the site actually uses.
 - **shadcn/ui + Radix + CVA + clsx/tailwind-merge** are the actual workhorses here — they cover Button (outlined/filled variants from `DESIGN.md`), Card, NavigationMenu, and Badge, which is nearly the full component inventory this site needs.
 
 ## 3. Directory Layout
@@ -153,6 +153,7 @@ This is a manual transcription step, not an automated RTF parser — six compete
 ├── /portfolio/leadership-and-advocacy
 └── /portfolio/counseling
 /contact                    Contact
+*                           404 / Not Found
 ```
 
 | Path | Page |
@@ -162,8 +163,13 @@ This is a manual transcription step, not an automated RTF parser — six compete
 | `/portfolio` | Portfolio hub (6 competency cards) |
 | `/portfolio/:slug` | Competency detail (generic component + `content/competencies.ts` lookup) |
 | `/contact` | Contact |
+| `*` | Not Found — catch-all for unmatched paths, styled consistently with the rest of the site (not a bare browser error page) |
 
 Client-side routing via `react-router-dom`, browser (history) router. A multi-page Vite build (separate `.html` entries per route) was considered as a simpler, more SEO-native alternative, but for ~10 pages sharing one nav/footer/layout, a single SPA build is easier to maintain and deploy as one unit. Revisit only if search-engine indexing of individual competency pages becomes a real requirement — at that point, a prerendering step (e.g. `vite-plugin-ssg`) is a smaller change than switching frameworks.
+
+### Per-Route Document Title
+
+Each route sets `document.title` on mount (a small `useDocumentTitle(title)` hook is enough — no need for a metadata library at this scale), formatted as `"{Page Title} — Raymond Wagoner, PhD Candidacy Portfolio"`. This is the one SEO/accessibility basic a static SPA needs to get right on its own, since there's no server to inject per-route `<title>`/meta tags at request time. A meta-description tag can follow the same pattern if search-result snippets matter later; not required for v1 given the primary audience (a graduate committee following direct links) doesn't depend on organic search discovery.
 
 ### Nav Structure — Hybrid Dropdown
 

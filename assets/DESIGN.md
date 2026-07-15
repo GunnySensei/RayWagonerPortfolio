@@ -37,7 +37,7 @@ Typography carries the entire hierarchy with just two families. **Fraunces** (a 
 
 ### Neutrals & Text
 
-- There is no gray ladder in the source. Secondary/metadata text was not observed as a distinct lighter shade — `#142426` (Ink) is reused at full opacity for both primary and secondary text roles. If a genuine secondary-text need arises (captions, timestamps), use `rgba(20, 36, 38, 0.65)` rather than introducing a new hue.
+- **Muted Ink** (`rgba(20, 36, 38, 0.65)`): There is no gray ladder in the source — no distinct lighter shade was observed for secondary/metadata text. This single derived tone (Ink at 65% opacity, not a new hue) is the system's **one and only** sanctioned exception to "text stays full-strength Ink," and it's reserved narrowly for genuine metadata (e.g. the "Meets A, B, C…" caption on an artifact — see §4). It must never be used for body copy, list items, or anything a reader is meant to read as primary content — see §3 Principles for the exact line between the two.
 
 ### Semantic & Accent
 
@@ -60,19 +60,23 @@ Note: in the offline Wix-editor capture, Wix Madefor Text sometimes rendered as 
 
 | Role | Size | Weight | Line Height | Font | Color | Notes |
 |------|------|--------|-------------|------|-------|-------|
-| Page H2 (e.g. "Teaching Competencies") | 60px | 700 | 57px | Fraunces | Ink `#142426` | Largest heading on a detail page |
-| Site Title / Logo | 30px | 700 | 28.5px | Fraunces | Ink `#142426` | Nav-bar brand mark |
+| Page Heading (e.g. "Teaching Competencies") | 60px | 700 | 57px | Fraunces | Ink `#142426` | Largest heading on a detail page. **Semantic `<h1>`** — see note below |
+| Site Title / Logo | 30px | 700 | 28.5px | Fraunces | Ink `#142426` | Nav-bar brand mark. Not a heading element — see note below |
 | Card Title (e.g. "Teaching Competency Portfolio") | 27.5px | 700 | 30.25px | Fraunces | Ink `#142426` | Hub-page competency cards |
 | Category Label (e.g. "CACREP Doctoral Competencies (2024)") | 22.5px | 700 | 29.25px | Wix Madefor Text | Sage Label `#638673` | Bold sans, not serif — distinguishes "label" from "heading" |
+| Artifact Title (e.g. "Group Counseling Course Leadership Reflection") | 22px | 700 | 1.3 | Wix Madefor Text | Ink `#142426` | Bold sans, not serif — see §4 Artifact List/Row patterns |
+| Metadata Caption (e.g. "Meets A, B, C, D") | 16px | 400 | 1.4 | Wix Madefor Text | Muted Ink `rgba(20,36,38,0.65)` | The system's one sanctioned muted-text usage — metadata only, never body copy |
 | Body / Nav Link / List Item / Button Label | 20px | 400 | 36px (list), normal (nav/button) | Wix Madefor Text | Ink `#142426` (button label: Forest Green `#2F5F48`) | Single body size across contexts |
 
 Letter-spacing is `normal` throughout — no tight tracking, no expanded caps. This is a deliberate departure from tighter retail-type systems: the academic voice reads at native spacing.
 
+**Semantic heading note:** the source Wix DOM marks the page-level heading ("Teaching Competencies") as an `<h2>` and reserves `<h1>` for the site title/logo in the nav — that's a Wix editor quirk, not a rule to carry into the build. A page needs exactly one `<h1>` identifying its main content for accessibility and SEO, so **the page heading gets the real `<h1>`** (visual size unchanged at 60px/700) and the nav-bar site title should render as a non-heading element (a styled link/div, not competing for the `<h1>` slot) on every page except possibly Home, where it's reasonable for the site title itself to be that page's one `<h1>`.
+
 ### Principles
 
-- **Serif = heading role, sans = everything else.** There is no size at which body text becomes serif, and no heading that drops to sans. The rule is binary and consistent.
+- **Serif = heading role, sans = everything else.** There is no size at which body text becomes serif, and no heading that drops to sans. The rule is binary and consistent. (Artifact Titles are bold sans, not serif — they're a list-item role, same tier as Category Label, not a page/card heading.)
 - **Weight, not size, marks "label" vs. "heading."** The category label (22.5px/700 sans) sits close in size to smaller headings but is legible as a label purely because it's sans + sage-colored, not serif + ink-colored.
-- **Body copy never lightens.** Unlike systems that fade secondary text to 60–70% opacity, this system keeps list/body text at full-strength Ink. Legibility over visual hierarchy-through-fade.
+- **Body and list copy never lightens.** Unlike systems that fade secondary text to 60–70% opacity, this system keeps body paragraphs and list items at full-strength Ink. The **one exception** is Muted Ink (`rgba(20,36,38,0.65)`), reserved strictly for metadata captions like an artifact's "Meets" line — never for content the reader is meant to treat as primary text. If you're tempted to fade something else, it's a sign that content shouldn't be styled as metadata, not a reason to reach for Muted Ink.
 - **Generous list line-height (`36px` on `20px` text)** is specific to long enumerated content (the CACREP competency lists run to a dozen+ bullet items) — keep this loose spacing for any future long-list content; don't tighten it to a standard `1.5`.
 - **Active nav/link state is underline only** — color and weight stay constant between active and inactive nav items.
 
@@ -94,6 +98,7 @@ Fraunces and Wix Madefor Text are both available as free/open fonts:
 - Padding: `10px 30px`
 - Font: Wix Madefor Text, 20px, weight 400
 - Shadow: none
+- **Accessibility:** the visible label is "View Portfolio" on all 6 cards — identical text is indistinguishable to a screen-reader user tabbing through them. Set `aria-label="View {Card Title} Portfolio"` (e.g. `"View Teaching Competency Portfolio"`) so each button announces uniquely.
 
 **2. Filled — "Contact" (nav CTA)**
 - Background: `#2F5F48` (Forest Green)
@@ -107,6 +112,7 @@ Fraunces and Wix Madefor Text are both available as free/open fonts:
 - Same visual treatment as the "Contact" nav button: `#2F5F48` (Forest Green) background, white text, `0px` radius
 - Right-aligned within an artifact row (see "Artifact Row" pattern below)
 - Reuses the one filled-button style rather than introducing a third button treatment — this system has exactly two button types (outlined, filled), not one-per-context
+- **Accessibility:** same issue as "View Portfolio" — every row's button reads identical "Access Artifact" text. Set `aria-label="Access artifact: {Artifact Title}"` per row.
 
 ### Cards
 
@@ -140,7 +146,7 @@ The raw Wix mockup put every competency page inline in the nav (Home, About Me, 
 ### Competency Detail Page (list pattern)
 
 Repeating pattern used for each competency subpage (Teaching, Supervision, Research, etc.):
-1. Page H2 in Fraunces 60/700, Ink (e.g. "Teaching Competencies")
+1. Page heading in Fraunces 60/700, Ink, marked up as the page's semantic `<h1>` (e.g. "Teaching Competencies" — see the semantic-heading note in §3)
 2. Category label directly below, in Wix Madefor Text 22.5/700, Sage Label color (e.g. "CACREP Doctoral Competencies (2024)")
 3. A single bulleted (`disc`) list of competency statements, each item Wix Madefor Text 20/400, Ink, line-height 36px
 4. Below the competency list, an **artifact section** in one of two patterns (see below) — which pattern a given page uses depends on whether its artifacts are typically backed by one file or several, but **a single page commits to one pattern for all its artifacts**, never mixing the two
@@ -152,22 +158,22 @@ Used when a module/artifact commonly has more than one supporting file (a lectur
 
 - Optional small sage eyebrow tag above the section (e.g. "Module Artifacts")
 - Per artifact, stacked vertically with no card/background/divider:
-  1. Bold artifact title, Fraunces or Wix Madefor Text bold (e.g. "Group Counseling Course Leadership Reflection")
-  2. A muted "Meets A, B, C, D, E, F, G, H, J, L" caption line directly below the title, smaller size, quieter color than body ink (treat as a metadata line, not body copy)
-  3. A short description paragraph (body-copy weight/color)
-  4. A bold "Files:" label
-  5. A bulleted (`disc`) list of file links below it — one `<li>` per associated file, link text underlined, one artifact can list 1–N files
+  1. Artifact Title — Wix Madefor Text, 22px, weight 700, Ink (e.g. "Group Counseling Course Leadership Reflection"). Bold sans, not serif — resolves the artifact-title role as list-item-tier, same tier as Category Label, not a page/card heading (see §3 Principles)
+  2. A Metadata Caption line directly below the title: "Meets A, B, C, D, E, F, G, H, J, L" in Wix Madefor Text 16/400, **Muted Ink** (`rgba(20,36,38,0.65)`) — the system's one sanctioned muted-text usage (see §2/§3)
+  3. A short description paragraph (body-copy weight/color — Wix Madefor Text 20/400, full-strength Ink), if present
+  4. If `files.length > 0`: a bold "Files:" label, then a bulleted (`disc`) list of file links — one `<li>` per file, link text underlined
+  5. **If `files.length === 0`** (a real case — e.g. a listed teaching-experience entry with no associated document): omit the "Files:" label and list entirely. Title, Meets caption, and description (if any) render alone — never render an empty "Files:" heading with nothing under it
 - No button component in this pattern — files are plain inline text links inside the bulleted list
 
 **Artifact Row (single-file pattern — e.g. Counseling)**
 
 Used when each module/artifact maps to exactly one file.
 
-- Each artifact is its own row/container with a very pale sage-tinted background wash (lighter than Card Sage `#BDD7D4` — a near-canvas tint) and a thin horizontal divider between rows
+- Each artifact is its own row/container with background `#F2F5F0` (Card Sage `#BDD7D4` at 20% opacity over Canvas Ivory — a derived tint, not a new hue) and a `1px solid rgba(20,36,38,0.12)` divider between rows (a quiet hairline in Ink, not a new color)
 - Per row, left-to-right:
-  1. Left column: bold heading combining title **and** the "Meets" list on a single line (e.g. "710 Group CoLeadership Reflection - Meets D, F" — not split across two lines like the multi-file pattern), with a description paragraph below it
+  1. Left column: Artifact Title (Wix Madefor Text 22/700, Ink) combining title **and** the "Meets" list on a single line (e.g. "710 Group CoLeadership Reflection - Meets D, F" — not split across two lines like the multi-file pattern; the "Meets" portion of this combined line still reads as Muted Ink to keep the metadata-vs-title distinction even when they share one line), with a description paragraph below it (Wix Madefor Text 20/400, full-strength Ink)
   2. Right column: a single "Access Artifact" filled button (Forest Green, see Buttons §3), linking to the one associated file
-- One button per row, always — this pattern assumes exactly one file per artifact; if an artifact genuinely has more than one file, it doesn't belong in this pattern (switch that page to the Artifact List pattern instead, consistently, rather than mixing)
+- One button per row when `files.length === 1` — this pattern's premise. **If `files.length === 0`** for a row (an artifact with no associated document), omit the button entirely and leave the right column empty rather than rendering a disabled/dead button. **If an artifact genuinely needs more than one file, it doesn't belong in this pattern** — that page should use Artifact List instead, consistently, rather than mixing patterns within one page
 
 ### Inputs & Forms
 
@@ -212,21 +218,24 @@ The page canvas doesn't change color between sections — whitespace and the sag
 - Reserve Forest Green (`#2F5F48`) for interactive elements only (button border/text, filled nav CTA) — don't use it for headings or decoration
 - Use Sage Label (`#638673`) only for category/eyebrow text, always bold, always sans — never for headings or buttons
 - Keep every corner square (`border-radius: 0`) — this is the system's load-bearing visual signature
-- Pair Fraunces-serif-bold exclusively with heading roles (site title, page H2, card titles) and Wix Madefor Text with everything else
+- Pair Fraunces-serif-bold exclusively with page/card heading roles (site title, page heading, card titles) and Wix Madefor Text with everything else, including Artifact Titles
 - Keep letter-spacing at `normal` — no tight tracking
 - Use underline (not color/weight) for active nav state
 - Keep body/list line-height generous (~1.8×) for long enumerated content
 - Keep every surface flat — no shadows, no gradients
+- Give every "View Portfolio" / "Access Artifact" button a unique `aria-label` naming what it links to — the visible label repeats across every card/row
+- Mark the page-level heading as a real `<h1>` on every detail page — don't let the nav-bar site title occupy that slot
 
 ### Don't
 - Don't introduce a second or third accent green — one Forest Green does every interactive job
 - Don't add gold, dark feature-bands, or any brand color beyond the five documented here
 - Don't round any corners "to soften things up" — square corners are intentional, not an oversight
-- Don't fade secondary text to a lighter gray — this system keeps text at full-strength Ink
+- Don't fade body copy or list items to a lighter gray — this system keeps primary text at full-strength Ink. Muted Ink (`rgba(20,36,38,0.65)`) exists for exactly one thing — metadata captions like an artifact's "Meets" line — not general secondary text
 - Don't add drop shadows or hover-lift effects to cards — the system is deliberately flat
 - Don't mix Fraunces into body copy or Wix Madefor Text into headings — the serif/sans split maps strictly to heading-vs-everything-else
 - Don't add tight letter-spacing or all-caps styling — nothing in the source uses either
 - Don't invent a rem-anchored spacing-token scale from whole cloth — use a plain 8px grid until real values are captured from a built site
+- Don't leave a page without a real `<h1>`, and don't give a page two — the site title in the nav is not a heading
 
 ## 8. Responsive Behavior
 
