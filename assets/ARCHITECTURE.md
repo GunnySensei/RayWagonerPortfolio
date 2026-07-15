@@ -77,43 +77,75 @@ Adopted as specified:
 
 ## 4. Content Model
 
-All page copy and the artifact manifest live in one typed source of truth (`src/content/competencies.ts`), not scattered across JSX. The hub page maps over it to render cards; the detail page looks up one entry by route slug and renders its artifacts in whichever of the two layouts (see `DESIGN.md` §4, "Competency Detail Page") that competency uses.
+All page copy and the artifact manifest live in one typed source of truth (`src/content/competencies.ts`), not scattered across JSX. The hub page maps over it to render cards; the detail page looks up one entry by route slug and renders its content in whichever of the three layouts (see `DESIGN.md` §4, "Competency Detail Page") that competency uses.
 
-Real source content (see `assets/example/Teaching Competencies.rtf`, delivered per-competency alongside a Wix media folder of files) confirms the shape needed:
+All six competency RTFs have now been read in full and converted to markdown (`assets/PhD Portfolio/*/PDFs for Web */*.md`, one per competency, gitignored alongside their source folder — see §5). That confirms the shape needed, and surfaced one structural fact that changes the model from what was originally assumed: **Professional Identity isn't a variant of the artifact-based pages — it has no CACREP competency letters at all**, and needs a third, differently-shaped content type. The other five findings refine the `Artifact` shape:
 - An artifact's title is freeform text, often carrying a course-code prefix (`"710 CoLeadership Reflection"`)
-- The competencies an artifact satisfies are expressed as letter ranges/lists (`"A, B, C"`, `"A-G"`, `"A - D, F - H"`) and should be normalized to an expanded `string[]` of letters at authoring time, not stored as raw range text — that's what makes "show everything that satisfies competency H" possible later
-- An artifact can have **zero, one, or many** associated files (the raw manifest includes entries like `"Teaching Internship COUC 970, 14-week online course (Fall 2025) (no file)"` — a real experience entry with nothing to link)
-- Files are not all PDFs — the manifest includes at least one `_ppt` (PowerPoint) file alongside PDFs, so the content model and hosting strategy must be file-type-agnostic, not "pdf-only"
+- The competencies an artifact satisfies are expressed as letter ranges/lists (`"A, B, C"`, `"A-G"`, `"A - D, F - H"`) and should be normalized to an expanded `string[]` of letters at authoring time, not stored as raw range text — that's what makes "show everything that satisfies competency H" possible later. **This mapping is optional** — a real "Teaching Experience" entry has no Meets line at all, not even an empty one.
+- An artifact can have **zero, one, or many** associated list items (the raw manifest includes entries like `"Teaching Internship COUC 970, 14-week online course (Fall 2025) (no file)"` — a real experience entry with nothing to link)
+- **Individual list items can themselves lack a file**, independent of the artifact-level zero/one/many count — two real items ("Three semesters of adjunct teaching…", "Three semesters of Faculty teaching…" on the Teaching page) are plain informational text with no document and no "(no file)" annotation either. So `filename` is optional per item, not just the array being possibly empty.
+- Files are not all PDFs — the manifest includes at least one `_ppt`/PowerPoint file and one `.jpeg` (a photographed license) alongside PDFs, so the content model and hosting strategy must be file-type-agnostic, not "pdf-only"
+- **Every competency's CACREP letter list is genuinely distinct** (different letters, different count, different wording) — there is no shared A–M set to reuse across pages; each `Competency.competencyItems` array must be authored per page from its own RTF
 
 ```ts
 // src/types/content.ts
 interface ArtifactFile {
   label: string;        // display name, e.g. "710 CoLeadership Reflection"
-  filename: string;      // e.g. "710-coleadership-reflection.pdf" — kebab-case, extension preserved
+  filename?: string;     // e.g. "710-coleadership-reflection.pdf" — absent for plain-text/no-file list items
 }
 
 interface Artifact {
   title: string;              // e.g. "Group Counseling Course Leadership Reflection"
-  meets: string[];             // expanded competency letters, e.g. ["A","B","C","D","E","F","G","H","J","L"]
+  meets?: string[];            // expanded competency letters, e.g. ["A","B","C","D","E","F","G","H","J","L"] — absent for background/experience entries with no competency mapping
   description?: string;        // short description; may be absent for raw "experience" entries
-  files: ArtifactFile[];       // 0, 1, or many — an empty array is valid (e.g. a listed teaching experience with no file)
+  files: ArtifactFile[];       // 0, 1, or many; entries may themselves lack `filename` (plain text, no document)
 }
 
-interface Competency {
-  slug: string;                 // "teaching" — also the /public/artifacts subfolder name (matches source Wix folder name, kebab-cased)
+// Professional Identity's shape — no CACREP letters, grouped by requirement category instead
+type EvidenceItem =
+  | { kind: 'file'; label: string; filename: string }
+  | { kind: 'citation'; text: string }        // e.g. an in-progress manuscript reference, no document
+  | { kind: 'note'; text: string };            // e.g. "(No file — just space to write my attendance)"
+
+interface RequirementGroup {
+  heading: string;              // e.g. "Membership in Professional Counseling Organizations"
+  items: EvidenceItem[];
+}
+
+interface CompetencyBase {
+  slug: string;                 // e.g. "teaching" — also the /public/artifacts subfolder name (matches source Wix folder name, kebab-cased)
   navLabel: string;              // "Teaching Competency"
   cardTitle: string;             // "Teaching Competency Portfolio"
   cardDescription: string;       // hub-card one-liner
-  categoryLabel: string;         // "CACREP Doctoral Competencies (2024)"
-  competencyItems: string[];     // the A–M bulleted statements
-  artifactLayout: 'list' | 'row'; // which of the two DESIGN.md artifact patterns this page uses — fixed per competency, applied to every artifact on that page
-  artifacts: Artifact[];
 }
+
+type Competency =
+  | (CompetencyBase & {
+      artifactLayout: 'list' | 'row';
+      categoryLabel: string;       // "CACREP Doctoral Competencies (2024)"
+      competencyItems: string[];   // this page's own lettered statements — never shared across competencies
+      artifacts: Artifact[];
+    })
+  | (CompetencyBase & {
+      artifactLayout: 'category';
+      requirementGroups: RequirementGroup[];
+    });
 ```
 
-**A `'row'`-layout competency (e.g. Counseling) is expected to have exactly one file per artifact** — that's the pattern's whole premise (one "Access Artifact" button per row). If real content for a `'row'` page ever includes a multi-file artifact, that's a signal the page should be `'list'` layout instead, not a case to special-case around.
+Confirmed page → `artifactLayout` mapping (see `DESIGN.md` §4 for the full rationale table):
 
-Adding a new artifact is: drop its file(s) in `public/artifacts/<slug>/`, add one `Artifact` entry to that competency's `artifacts` array. No component code changes required — the two layout components render whatever's in `artifacts`.
+| slug | artifactLayout | Why |
+|---|---|---|
+| `teaching` | `'list'` | Several artifacts group 2–4 files each |
+| `research-and-scholarship` | `'list'` | Two artifacts group 3 and 5 files respectively |
+| `supervision` | `'list'` | Four of seven artifacts group multiple files |
+| `counseling` | `'row'` | Every artifact maps to exactly one file |
+| `leadership-and-advocacy` | `'row'` | Every one of 9 artifacts maps to exactly one file |
+| `professional-identity` | `'category'` | No CACREP letters — organized by requirement category |
+
+**A `'row'`-layout competency is expected to have exactly one file per artifact** — that's the pattern's whole premise (one "Access Artifact" button per row). If real content for a `'row'` page ever includes a multi-file artifact, that's a signal the page should be `'list'` layout instead, not a case to special-case around.
+
+Adding a new artifact is: drop its file(s) in `public/artifacts/<slug>/`, add one `Artifact` (or `RequirementGroup`, for Professional Identity) entry to that competency's array. No component code changes required — the three layout components render whatever's in the data.
 
 ## 5. Artifact File Hosting Strategy
 
@@ -132,13 +164,20 @@ Source content is mixed file types (PDF, PowerPoint at minimum — the real Teac
 
 ### Content Import Process
 
-When a competency's asset folder arrives (an RTF manifest like `Teaching Competencies.rtf` plus its associated files, mirroring the Wix media-folder structure already seen for all six competencies):
-1. Drop the raw delivered folder under `assets/` (git-ignored, same as the existing `assets/example/` mockups) so the source manifest is available for reference without bloating the repo
-2. Rename/copy the actual artifact files into `public/artifacts/<slug>/` with sanitized filenames
-3. Hand-transcribe the RTF's title / "Meets" / file-list structure into one `Competency.artifacts` array in `src/content/competencies.ts`, expanding any letter ranges (`"A-G"`) into full arrays (`["A","B","C","D","E","F","G"]`)
-4. Pick `artifactLayout: 'list'` or `'row'` for that competency based on whether its artifacts are typically multi-file or single-file (see `DESIGN.md` §4) — this is a per-page decision made once, not per-artifact
+The full delivery arrived as `assets/PhD Portfolio/` (git-ignored, personal/sensitive documents — see §5 and `.gitignore`), one subfolder per competency, each containing a `PDFs for Web <Competency>/` folder with the web-ready PDFs plus a `<Competency> Competencies.rtf` manifest. All six RTFs have been read and converted to markdown, co-located next to their source RTF (e.g. `assets/PhD Portfolio/Teaching/PDFs for Web Teaching/Teaching Competencies.md`) — those `.md` files are the authoritative transcription source for `content/competencies.ts`, not the raw RTFs, and each one carries its own conversion notes documenting file-count cross-checks and content gaps found.
 
-This is a manual transcription step, not an automated RTF parser — six competencies with a few dozen artifacts each doesn't justify building a parser, and the raw manifest format isn't consistent enough (mixed "no file" annotations, inconsistent range notation) to parse reliably without human judgment anyway.
+Per-competency import steps (repeat for each of the six):
+1. Rename/copy the actual artifact files from `PDFs for Web <Competency>/` into `public/artifacts/<slug>/` with sanitized filenames
+2. Hand-transcribe the `.md` manifest's title / "Meets" / file-list structure into that competency's entry in `src/content/competencies.ts`, expanding any letter ranges (`"A-G"`) into full arrays (`["A","B","C","D","E","F","G"]`)
+3. Set `artifactLayout` per the confirmed mapping table in §4 — this is a per-page decision made once, not per-artifact
+
+This is a manual transcription step, not an automated RTF parser — six competencies with a few dozen artifacts each doesn't justify building a parser, and the raw manifest format isn't consistent enough (mixed "no file" annotations, inconsistent range notation, typos) to parse reliably without human judgment anyway.
+
+**Open content gaps found during conversion, to resolve with Ray before a competency page can ship complete:**
+- **Counseling:** "998 Case Conceptualization" (Meets A–F) has no matching web PDF — only a `.pptx` exists in the raw (non-web) folder. Needs a PDF export added to `PDFs for Web Counseling/`.
+- **Professional Identity:** the "Curriculum Vitae" requirement category has no file at all in the delivered folder. Needs a CV PDF, if the page is meant to link to one.
+- **Supervision:** two distinct artifacts are both effectively titled "Supervision Reflection" ("710 Supervision Reflection," single file, vs. a grouped "Supervision Reflection" covering Initial + Second Session Reflection) — same Meets letters (D, E) too. Needs a disambiguating title from Ray before transcription (suggested: "Supervision Session Reflections (Initial & Second Session)" for the grouped one) rather than silently renaming without confirmation.
+- **Descriptions:** Teaching's Wix mockup shows real narrative descriptions per artifact, but the RTFs for Counseling, Leadership and Advocacy, Research and Scholarship, and Supervision only give title + Meets + file(s) — no description text. Counseling's RTF explicitly flags this as a known gap with a placeholder template. Writing real descriptions for ~40 artifacts across four pages is a real content-authoring task, not a data-transcription one, and shouldn't be fabricated with invented specifics about Ray's actual coursework.
 
 ## 6. Site Map & Routing
 

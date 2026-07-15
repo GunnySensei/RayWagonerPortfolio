@@ -143,29 +143,44 @@ The raw Wix mockup put every competency page inline in the nav (Home, About Me, 
 - Contents: the 6 competency `navLabel`s stacked vertically (Teaching Competency, Supervision Competency, Research and Scholarship, Professional Identity, Leadership and Advocacy, Counseling Competency), Wix Madefor Text 20/400, Ink, each a plain link to `/portfolio/:slug`
 - Item padding matches button padding (`10px 30px`) for visual rhythm with the rest of the system, no per-item background/hover-fill beyond an underline-on-hover (consistent with the "underline = interactive/active" rule used elsewhere in nav)
 
-### Competency Detail Page (list pattern)
+### Competency Detail Page (three patterns, confirmed against real content)
 
-Repeating pattern used for each competency subpage (Teaching, Supervision, Research, etc.):
+All six competency RTFs (`assets/PhD Portfolio/*/PDFs for Web */`, converted to markdown alongside their source files) have now been read in full. Two things that were assumptions before are now confirmed facts:
+
+- **Every page's CACREP competency-letter list is genuinely different** — different letters, different count, different wording. Teaching is A–M (13), Counseling is A–F (6), Leadership and Advocacy is A–N (14), Research and Scholarship is A–M (13, different wording than Teaching's), Supervision is A–L (12). Never copy one page's competency list as a template for another.
+- **Professional Identity has no CACREP letter list at all.** It's organized by named requirement category (credentialing/service requirements) instead. This is a third page shape, not a variant of the other two — see "Category Groups" below.
+
+Confirmed page → pattern mapping:
+
+| Competency | Pattern | Why |
+|---|---|---|
+| Teaching | Artifact List | Several artifacts group 2–4 files each |
+| Research and Scholarship | Artifact List | Two artifacts group 3 and 5 files respectively |
+| Supervision | Artifact List | Four of seven artifacts group 2–4 files each |
+| Counseling | Artifact Row | Every artifact maps to exactly one file, confirmed against the built Wix mockup |
+| Leadership and Advocacy | Artifact Row | Every one of 9 artifacts maps to exactly one file |
+| Professional Identity | Category Groups | No CACREP letters; organized by requirement category, not by artifact |
+
+General page structure:
 1. Page heading in Fraunces 60/700, Ink, marked up as the page's semantic `<h1>` (e.g. "Teaching Competencies" — see the semantic-heading note in §3)
-2. Category label directly below, in Wix Madefor Text 22.5/700, Sage Label color (e.g. "CACREP Doctoral Competencies (2024)")
-3. A single bulleted (`disc`) list of competency statements, each item Wix Madefor Text 20/400, Ink, line-height 36px
-4. Below the competency list, an **artifact section** in one of two patterns (see below) — which pattern a given page uses depends on whether its artifacts are typically backed by one file or several, but **a single page commits to one pattern for all its artifacts**, never mixing the two
-5. No cards, no columns, no hero imagery — a single-column text-forward layout throughout
+2. **Artifact List / Artifact Row pages only:** category label directly below, in Wix Madefor Text 22.5/700, Sage Label color (e.g. "CACREP Doctoral Competencies (2024)"), then a single bulleted (`disc`) list of that page's own competency statements, each item Wix Madefor Text 20/400, Ink, line-height 36px. **Category Groups pages (Professional Identity) skip this entirely** — there's no competency-letter list to show, so the page goes straight from the `<h1>` into its requirement categories.
+3. Below that, the artifact/evidence section in whichever of the three patterns that page uses — **a single page commits to one pattern for everything on it**, never mixing
+4. No cards, no columns, no hero imagery — a single-column text-forward layout throughout
 
-**Artifact List (multi-file pattern — e.g. Teaching)**
+**Artifact List (multi-file pattern — Teaching, Research and Scholarship, Supervision)**
 
 Used when a module/artifact commonly has more than one supporting file (a lecture plus its slide deck, a reflection plus its instructor feedback).
 
 - Optional small sage eyebrow tag above the section (e.g. "Module Artifacts")
 - Per artifact, stacked vertically with no card/background/divider:
   1. Artifact Title — Wix Madefor Text, 22px, weight 700, Ink (e.g. "Group Counseling Course Leadership Reflection"). Bold sans, not serif — resolves the artifact-title role as list-item-tier, same tier as Category Label, not a page/card heading (see §3 Principles)
-  2. A Metadata Caption line directly below the title: "Meets A, B, C, D, E, F, G, H, J, L" in Wix Madefor Text 16/400, **Muted Ink** (`rgba(20,36,38,0.65)`) — the system's one sanctioned muted-text usage (see §2/§3)
+  2. A Metadata Caption line directly below the title: "Meets A, B, C, D, E, F, G, H, J, L" in Wix Madefor Text 16/400, **Muted Ink** (`rgba(20,36,38,0.65)`) — the system's one sanctioned muted-text usage (see §2/§3). **This line is optional** — a real "Teaching Experience" entry has no Meets mapping at all (it's a background/experience note, not tied to specific competencies). Omit the line entirely rather than rendering an empty "Meets" caption.
   3. A short description paragraph (body-copy weight/color — Wix Madefor Text 20/400, full-strength Ink), if present
-  4. If `files.length > 0`: a bold "Files:" label, then a bulleted (`disc`) list of file links — one `<li>` per file, link text underlined
-  5. **If `files.length === 0`** (a real case — e.g. a listed teaching-experience entry with no associated document): omit the "Files:" label and list entirely. Title, Meets caption, and description (if any) render alone — never render an empty "Files:" heading with nothing under it
+  4. If the artifact has at least one linkable file: a bold "Files:" label, then a bulleted (`disc`) list below it — one `<li>` per item. **Each item is independently one of:** a file link (underlined), or plain non-linked text (a real case — two "Three semesters of adjunct/faculty teaching" entries on the Teaching page are informational, no document exists for them and none should be implied by rendering them as links)
+  5. **If the artifact has zero list items entirely** (a real case — a listed teaching-experience entry with no associated document and no sub-items): omit the "Files:" label and list entirely. Title, Meets caption (if present), and description (if any) render alone — never render an empty "Files:" heading with nothing under it
 - No button component in this pattern — files are plain inline text links inside the bulleted list
 
-**Artifact Row (single-file pattern — e.g. Counseling)**
+**Artifact Row (single-file pattern — Counseling, Leadership and Advocacy)**
 
 Used when each module/artifact maps to exactly one file.
 
@@ -173,7 +188,20 @@ Used when each module/artifact maps to exactly one file.
 - Per row, left-to-right:
   1. Left column: Artifact Title (Wix Madefor Text 22/700, Ink) combining title **and** the "Meets" list on a single line (e.g. "710 Group CoLeadership Reflection - Meets D, F" — not split across two lines like the multi-file pattern; the "Meets" portion of this combined line still reads as Muted Ink to keep the metadata-vs-title distinction even when they share one line), with a description paragraph below it (Wix Madefor Text 20/400, full-strength Ink)
   2. Right column: a single "Access Artifact" filled button (Forest Green, see Buttons §3), linking to the one associated file
-- One button per row when `files.length === 1` — this pattern's premise. **If `files.length === 0`** for a row (an artifact with no associated document), omit the button entirely and leave the right column empty rather than rendering a disabled/dead button. **If an artifact genuinely needs more than one file, it doesn't belong in this pattern** — that page should use Artifact List instead, consistently, rather than mixing patterns within one page
+- One button per row when the artifact has exactly one file — this pattern's premise. **If an artifact has zero files** (no case observed yet on a Row-pattern page, but the content model must allow it), omit the button entirely and leave the right column empty rather than rendering a disabled/dead button. **If an artifact genuinely needs more than one file, it doesn't belong in this pattern** — that page should use Artifact List instead, consistently, rather than mixing patterns within one page
+
+**Category Groups (grouped-requirement pattern — Professional Identity only)**
+
+Used for the one page that isn't organized around CACREP competency letters at all — it lists named professional requirements (organizational memberships, licensure, publications, conference presentations, etc.) and the evidence for each.
+
+- No competency-letter list, no Category Label eyebrow (there's nothing CACREP-shaped to label)
+- Per requirement category, stacked vertically with no card/background/divider:
+  1. Requirement Heading — same visual treatment as Artifact Title (Wix Madefor Text 22/700, Ink), e.g. "Membership in Professional Counseling Organizations." Reuses the Artifact Title role rather than inventing a fourth heading-tier, since it plays the same structural job (introduces a group of evidence)
+  2. A bulleted (`disc`) list of evidence items below it, Wix Madefor Text 20/400. **Each item is independently one of three kinds**, and they can mix freely within one category's list:
+     - **File** — underlined link, same treatment as an Artifact List file link (e.g. the four membership-card PDFs)
+     - **Citation** — plain, non-linked text for evidence that's a reference rather than a document (e.g. a manuscript citation still "in progress" with no PDF yet), full-strength Ink, no special formatting beyond normal body copy
+     - **Note** — a bracketed status note like "(No file — just space to write my attendance)", rendered in **Muted Ink** (same token used for the Meets caption elsewhere) to visually mark it as a placeholder rather than real evidence
+- No button component in this pattern either — same "files are plain inline links" approach as Artifact List, extended to also cover citations and notes
 
 ### Inputs & Forms
 
@@ -271,6 +299,10 @@ The source mockups are desktop-only Wix-editor captures (~1600px canvas) — no 
 
 4. "Lay out the portfolio hub page: a 3-column × 2-row grid of competency cards on Canvas Ivory (`#FFFDF7`) background, even gutters, no section-color banding — the whole page sits on one canvas tone."
 
+5. "Build an Artifact Row (Counseling/Leadership and Advocacy pattern): a full-width row with `#F2F5F0` background and a `1px solid rgba(20,36,38,0.12)` bottom divider. Left: Artifact Title in Wix Madefor Text 22px weight 700 Ink, combined on one line with a Muted Ink 'Meets D, F' segment, then a description paragraph in Wix Madefor Text 20px weight 400 Ink below it. Right, vertically centered: a filled 'Access Artifact' button (Forest Green, white text, square corners, `10px 30px` padding) with a unique `aria-label` naming the artifact."
+
+6. "Build a Category Group (Professional Identity pattern): a Requirement Heading in Wix Madefor Text 22px weight 700 Ink (e.g. 'Membership in Professional Counseling Organizations'), followed by a bulleted list in Wix Madefor Text 20px weight 400. Mix three item kinds as needed: underlined file links in full-strength Ink, plain unlinked citation text in full-strength Ink, and bracketed status notes like '(No file)' in Muted Ink (`rgba(20,36,38,0.65)`)."
+
 ### Iteration Guide
 
 When refining screens generated with this system:
@@ -282,8 +314,9 @@ When refining screens generated with this system:
 
 ### Known Gaps
 
-- Only two page types were captured (competency hub, competency detail list) — About Me, Research/Scholarship detail, Contact, and any CV/publications page are not directly observed; extrapolate from the documented components rather than inventing new visual language.
+- Only two pages were visually mocked up in the Wix editor (competency hub, Teaching competency detail) — Home, About Me, Contact, and the specific visual appearance of Artifact Row / Category Groups pages are not directly observed; the styling for those patterns (§4) extrapolates from documented tokens, not from a screenshot. Content *structure* (as opposed to visual styling) for all 6 competency pages is now confirmed — see the RTF-to-markdown conversions in `assets/PhD Portfolio/*/PDFs for Web */*.md` and the updated "Competency Detail Page" section above.
 - No form components observed — Contact-page input styling in Section 4 is extrapolated, not extracted, and should be revisited once real form mockups exist.
 - No mobile/tablet mockups exist — Section 8's breakpoints are provisional recommendations.
 - The "Contact" filled-button text color returned an unreliable `rgb(0,0,0)` from computed-style extraction (likely a compositing artifact in the saved offline snapshot); confirm actual color (almost certainly white) once the real site is live.
 - No hover/focus/active interaction states were observable in the static Wix-editor capture — all interaction-state guidance in this doc is inferred conservatively from the flat, shadow-free, square-corner system rather than extracted.
+- The Artifact Row and Category Groups patterns' visual specs (background tint, divider, item-kind styling) have never been seen built, only reasoned from existing tokens — treat them as the least-validated part of this document and sanity-check against the real build once it exists.
