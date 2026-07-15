@@ -1,0 +1,36 @@
+{
+  "name": "raywagoner-phd-portfolio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource/fraunces": "^5.2.9",
+    "@fontsource/wix-madefor-text": "^5.2.8",
+    "@radix-ui/react-navigation-menu": "^1.2.18",
+    "@radix-ui/react-slot": "^1.3.0",
+    "@tailwindcss/vite": "^4.3.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.24.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.18.1",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "oxlint": "^1.71.0",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.11"
+  }
+}
