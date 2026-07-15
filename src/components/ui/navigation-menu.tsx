@@ -34,8 +34,11 @@ const NavigationMenuItem = NavigationMenuPrimitive.Item;
 
 // Nav links and the dropdown trigger share one visual language: font-sans 20px, Ink,
 // underline (not color/weight) marks the active/open state — see DESIGN.md §4 Navigation.
+// Radix's default focus outline is replaced (not removed) with a square Forest Green ring,
+// consistent with the system's square-corner language — WCAG 2.4.7 requires a visible
+// focus indicator, so this must never become focus:outline-none with nothing in its place.
 const navTriggerStyle =
-  'group flex items-center gap-1 font-sans text-[20px] text-ink underline-offset-4 hover:underline focus:outline-none data-[state=open]:underline';
+  'group flex items-center gap-1 font-sans text-[20px] text-ink underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest focus-visible:outline-offset-2 data-[state=open]:underline';
 
 const NavigationMenuTrigger = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Trigger>,

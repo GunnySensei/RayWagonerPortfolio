@@ -4,7 +4,36 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#FFFDF7" />
     <title>Raymond Wagoner, PhD Candidacy Portfolio</title>
+
+    <!-- Static fallback for crawlers/unfurlers that don't execute JS (social-preview cards,
+         non-JS search bots). Per-route pages override description/title via
+         src/lib/usePageMeta.ts for JS-executing crawlers, but link previews (Slack, X,
+         iMessage) always read these root tags regardless of route — a real SPA limitation,
+         not a bug; see assets/ARCHITECTURE.md §10 Non-Goals (no SSR/prerendering for v1). -->
+    <meta
+      name="description"
+      content="A CACREP doctoral candidacy portfolio in counselor education for Raymond Wagoner, organized by competency area — teaching, supervision, research and scholarship, professional identity, leadership and advocacy, and counseling."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Raymond Wagoner, PhD Candidacy Portfolio" />
+    <meta property="og:title" content="Raymond Wagoner, PhD Candidacy Portfolio" />
+    <meta
+      property="og:description"
+      content="A CACREP doctoral candidacy portfolio in counselor education, organized by competency area."
+    />
+    <meta property="og:url" content="https://raymondwagonerphd.com/" />
+    <!-- Portrait photo, not the 1200x630 landscape OG platforms prefer — it's the only
+         real photo available; swap for a proper landscape crop if one is ever taken. -->
+    <meta property="og:image" content="https://raymondwagonerphd.com/images/ray-wagoner-about.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Raymond Wagoner, PhD Candidacy Portfolio" />
+    <meta
+      name="twitter:description"
+      content="A CACREP doctoral candidacy portfolio in counselor education, organized by competency area."
+    />
+    <meta name="twitter:image" content="https://raymondwagonerphd.com/images/ray-wagoner-about.jpg" />
   </head>
   <body>
     <div id="root"></div>

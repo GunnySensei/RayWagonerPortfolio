@@ -208,9 +208,13 @@ This is a manual transcription step, not an automated RTF parser — six compete
 
 Client-side routing via `react-router-dom`, browser (history) router. A multi-page Vite build (separate `.html` entries per route) was considered as a simpler, more SEO-native alternative, but for ~10 pages sharing one nav/footer/layout, a single SPA build is easier to maintain and deploy as one unit. Revisit only if search-engine indexing of individual competency pages becomes a real requirement — at that point, a prerendering step (e.g. `vite-plugin-ssg`) is a smaller change than switching frameworks.
 
-### Per-Route Document Title
+### Per-Route Meta: Title, Description, Canonical
 
-Each route sets `document.title` on mount (a small `useDocumentTitle(title)` hook is enough — no need for a metadata library at this scale), formatted as `"{Page Title} — Raymond Wagoner, PhD Candidacy Portfolio"`. This is the one SEO/accessibility basic a static SPA needs to get right on its own, since there's no server to inject per-route `<title>`/meta tags at request time. A meta-description tag can follow the same pattern if search-result snippets matter later; not required for v1 given the primary audience (a graduate committee following direct links) doesn't depend on organic search discovery.
+`src/lib/usePageMeta.ts` — a single hook every page calls with `(title, description)` — sets `document.title`, the `<meta name="description">` tag, and the `<link rel="canonical">` tag on mount (no metadata library needed at this scale). Titles format as `"{Page Title} — Raymond Wagoner, PhD Candidacy Portfolio"`. This is the SEO/accessibility basic a static SPA needs to get right on its own, since there's no server to inject per-route tags at request time — but it only helps crawlers that execute JS (Google does). It does **not** affect social-preview unfurling (Slack/X/iMessage link cards), which reads the static tags in `index.html` without running any JS — a real limitation of a client-rendered SPA with no SSR/prerendering (§10 Non-Goals), not a bug to chase for v1.
+
+**Static fallback tags** (`index.html`): description, Open Graph (`og:*`), and Twitter Card meta, plus `theme-color` (`#FFFDF7`, tints mobile browser chrome). These are what actually renders in a shared-link preview card, always reflecting the Home page identity regardless of which route was shared — accepted tradeoff, not fixed by the per-route hook above.
+
+**robots.txt + sitemap.xml** (`public/`): both generated from the same `competencies.ts` source of truth as the content itself (via a one-off script, same pattern as the artifact-file pipeline in §5) rather than hand-typed, so the 10 listed URLs can't drift from the real site map. Regenerate after adding/removing a route or competency.
 
 ### Nav Structure — Hybrid Dropdown
 

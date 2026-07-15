@@ -8,9 +8,9 @@ export function CategoryGroup({ slug, groups }: { slug: string; groups: Requirem
     <div className="flex flex-col gap-10">
       {groups.map((group) => (
         <div key={group.heading} className="flex flex-col gap-2">
-          <h3 className="font-sans text-[22px] font-bold leading-[1.3] text-ink">
+          <h2 className="font-sans text-[22px] font-bold leading-[1.3] text-ink">
             {group.heading}
-          </h3>
+          </h2>
           <ul className="list-disc pl-6">
             {group.items.map((item, i) => (
               <li
@@ -28,6 +28,7 @@ export function CategoryGroup({ slug, groups }: { slug: string; groups: Requirem
                     className="underline underline-offset-4"
                   >
                     {item.label}
+                    <span className="sr-only"> (opens in new tab)</span>
                   </a>
                 )}
                 {item.kind === 'citation' && item.text}

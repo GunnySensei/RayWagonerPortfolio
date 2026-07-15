@@ -4,7 +4,7 @@ import { ArtifactList } from '@/components/portfolio/ArtifactList';
 import { ArtifactRow } from '@/components/portfolio/ArtifactRow';
 import { CategoryGroup } from '@/components/portfolio/CategoryGroup';
 import { NotFound } from '@/pages/NotFound';
-import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { usePageMeta } from '@/lib/usePageMeta';
 import { competencies } from '@/content/competencies';
 
 // Generic competency page — looks up its data by :slug and renders whichever
@@ -13,7 +13,10 @@ export function CompetencyDetail() {
   const { slug } = useParams<{ slug: string }>();
   const competency = competencies.find((c) => c.slug === slug);
 
-  useDocumentTitle(competency?.pageHeading ?? 'Not Found');
+  usePageMeta(
+    competency?.pageHeading ?? 'Not Found',
+    competency?.cardDescription ?? 'The page you requested could not be found.',
+  );
 
   if (!competency) {
     return <NotFound />;

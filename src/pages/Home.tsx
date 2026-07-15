@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
-import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { usePageMeta } from '@/lib/usePageMeta';
 import { site } from '@/content/site';
 
 // Per assets/ARCHITECTURE.md §6: Home carries a short intro + one CTA into the
@@ -9,7 +9,10 @@ import { site } from '@/content/site';
 // nav-bar element allowed to double as this page's real <h1> — see
 // assets/DESIGN.md §3 semantic-heading note.
 export function Home() {
-  useDocumentTitle('Home');
+  usePageMeta(
+    'Home',
+    'A CACREP doctoral candidacy portfolio in counselor education for Raymond Wagoner, organized by competency area — teaching, supervision, research and scholarship, professional identity, leadership and advocacy, and counseling.',
+  );
 
   return (
     <PageContainer>

@@ -1,13 +1,13 @@
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
-import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { usePageMeta } from '@/lib/usePageMeta';
 import { site } from '@/content/site';
 
 // Simplest option from assets/ARCHITECTURE.md §7 — a mailto link. Swapping to a
 // third-party form endpoint (Formspree/Web3Forms) is still an open decision
 // (§11); this page only needs its button target changed if that's picked instead.
 export function Contact() {
-  useDocumentTitle('Contact');
+  usePageMeta('Contact', 'Get in touch with Raymond Wagoner.');
 
   return (
     <PageContainer>

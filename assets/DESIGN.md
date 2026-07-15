@@ -39,6 +39,23 @@ Typography carries the entire hierarchy with just two families. **Fraunces** (a 
 
 - **Muted Ink** (`rgba(20, 36, 38, 0.65)`): There is no gray ladder in the source — no distinct lighter shade was observed for secondary/metadata text. This single derived tone (Ink at 65% opacity, not a new hue) is the system's **one and only** sanctioned exception to "text stays full-strength Ink," and it's reserved narrowly for genuine metadata (e.g. the "Meets A, B, C…" caption on an artifact — see §4). It must never be used for body copy, list items, or anything a reader is meant to read as primary content — see §3 Principles for the exact line between the two.
 
+### Contrast Validation
+
+Every text/background pairing in this system has been checked against WCAG AA (computed relative-luminance contrast ratios, not eyeballed):
+
+| Pairing | Ratio | AA normal (4.5:1) | AA large (3:1) |
+|---|---|---|---|
+| Ink on Canvas (body text) | 15.76:1 | Pass | Pass |
+| Muted Ink on Canvas (metadata caption) | 5.02:1 | Pass | Pass |
+| Forest Green on Canvas (button/link text) | 7.24:1 | Pass | Pass |
+| Canvas on Forest Green (filled button text) | 7.24:1 | Pass | Pass |
+| Sage Label on Canvas (category label) | 3.98:1 | **Fails** | Pass |
+| Ink on Card Sage (card title/description) | 10.56:1 | Pass | Pass |
+| Ink on Row Tint (Artifact Row title) | 14.58:1 | Pass | Pass |
+| Muted Ink on Row Tint (Artifact Row "Meets" text) | 4.64:1 | Pass | Pass |
+
+**Sage Label only clears AA because of how it's actually used**: always 22.5px at weight 700, which meets WCAG's "large text" bold threshold (≥18.66px bold), so the 3:1 bar applies, not 4.5:1 — and 3.98:1 clears that comfortably. **This is a hard constraint on Sage Label, not a footnote**: it must never be used below ~19px bold (or ~24px regular) — doing so would drop it into normal-text contrast requirements it doesn't meet.
+
 ### Semantic & Accent
 
 - Not present in the source mockups (no error/warning/success states visible in a static portfolio page). If a contact form needs validation states, derive them conservatively from the existing palette rather than importing saturated red/yellow: e.g. a desaturated brick (`#8C4A3A`) for error, reusing Card Sage (`#BDD7D4`) tinted for success — keep new hues close to the sage/ink/ivory family so nothing feels bolted-on.
@@ -244,7 +261,7 @@ The page canvas doesn't change color between sections — whitespace and the sag
 ### Do
 - Use Canvas Ivory (`#FFFDF7`) as the only page background — don't alternate between white and cream
 - Reserve Forest Green (`#2F5F48`) for interactive elements only (button border/text, filled nav CTA) — don't use it for headings or decoration
-- Use Sage Label (`#638673`) only for category/eyebrow text, always bold, always sans — never for headings or buttons
+- Use Sage Label (`#638673`) only for category/eyebrow text, always bold, always sans, always ≥19px — never for headings or buttons, and never smaller (it only clears WCAG AA as large bold text — see §2 Contrast Validation)
 - Keep every corner square (`border-radius: 0`) — this is the system's load-bearing visual signature
 - Pair Fraunces-serif-bold exclusively with page/card heading roles (site title, page heading, card titles) and Wix Madefor Text with everything else, including Artifact Titles
 - Keep letter-spacing at `normal` — no tight tracking
@@ -267,17 +284,27 @@ The page canvas doesn't change color between sections — whitespace and the sag
 
 ## 8. Responsive Behavior
 
-The source mockups are desktop-only Wix-editor captures (~1600px canvas) — no mobile or tablet breakpoints were observed. The following is a **recommendation**, not an extraction, and should be treated as provisional until validated against a real build:
+The source mockups are desktop-only Wix-editor captures (~1600px canvas) — no mobile or tablet breakpoints were observed there. The breakpoints below are still a recommendation rather than an extraction, but the mobile nav pattern itself is now built and visually verified (`src/components/layout/MobileNav.tsx`), not just proposed:
 
-| Name | Width | Suggested Changes |
+| Name | Width | Behavior |
 |------|-------|--------------------|
-| Mobile | < 640px | Nav collapses to a stacked/hamburger layout; competency grid goes to 1 column; site title wraps as it already does at narrower widths in the source |
-| Tablet | 640–1023px | Competency grid goes to 2 columns |
-| Desktop | 1024px+ | Full 3-column competency grid, inline nav links |
+| Mobile | < 768px (Tailwind `md`) | Nav collapses to a hamburger trigger (square, Forest Green border) opening a right-side sheet: Home / About Me / Portfolio label + all 6 competency links stacked / filled Contact CTA at the bottom. Competency grid goes to 1 column. Site title wraps at narrow widths. Artifact Row's button moves below its text (`flex-col` → `md:flex-row`). |
+| Tablet | 768–1023px | Competency grid goes to 2 columns (`sm:grid-cols-2`) |
+| Desktop | 1024px+ (Tailwind `lg`) | Full 3-column competency grid (`lg:grid-cols-3`), inline nav links + Portfolio dropdown |
+
+**Mobile nav implementation notes:**
+- Built on Radix Dialog (`@radix-ui/react-dialog`), not a hand-rolled toggle — gets focus-trap, Escape-to-close, and `aria-modal` correctly for free
+- Same visual language as the desktop dropdown: Canvas Ivory panel, Forest Green border, square corners, no shadow
+- The 6 competency links render flat (no nested dropdown-within-a-sheet) under a "Portfolio" label in Muted Ink — simpler to tap than reproducing the desktop mega-menu inside a mobile sheet
+- Every link closes the sheet on click (`onClick={() => setOpen(false)}`), since SPA navigation doesn't trigger a natural dismiss the way a full page load would
 
 ### Touch Targets
 
-- Button padding (`10px 30px`) yields a comfortable horizontal target but the vertical measure alone is under 44px — pad vertically to at least `12–14px` on touch surfaces to clear the WCAG AAA 44px minimum.
+- Button padding (`10px 30px`) with 20px text works out to ~44px total height in practice (10 + ~24 line-height + 10) — right at the WCAG target size guideline, not under it as originally estimated before a real build existed to measure.
+
+### Route-Change Focus Management
+
+Client-side navigation doesn't reload the page, so neither scroll position nor assistive-tech focus moves on its own the way a real page load would. `App.tsx` handles both on every route change: scrolls to top and moves focus to `#main-content` (the `<main>` landmark, given `tabIndex={-1}` specifically so it's programmatically focusable without joining the regular tab order). The same `#main-content` target is what the skip-to-content link (first focusable element on every page) jumps to.
 
 ## 9. Agent Prompt Guide
 

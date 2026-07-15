@@ -8,6 +8,7 @@ import {
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
+import { MobileNav } from '@/components/layout/MobileNav';
 import { competencies } from '@/content/competencies';
 import { site } from '@/content/site';
 import { cn } from '@/lib/utils';
@@ -30,7 +31,7 @@ export function Nav() {
           {site.title}
         </NavLink>
 
-        <div className="flex flex-wrap items-center gap-8">
+        <div className="hidden items-center gap-8 md:flex">
           <NavLink to="/" end className={navLinkClass}>
             {site.nav.home}
           </NavLink>
@@ -66,6 +67,8 @@ export function Nav() {
             <NavLink to="/contact">{site.nav.contact}</NavLink>
           </Button>
         </div>
+
+        <MobileNav />
       </div>
     </header>
   );

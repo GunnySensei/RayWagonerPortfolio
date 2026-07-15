@@ -14,12 +14,12 @@ export function ArtifactRow({ slug, artifacts }: { slug: string; artifacts: Arti
             className="flex flex-col items-start justify-between gap-4 border-b border-row-divider bg-row-tint p-8 md:flex-row md:items-center"
           >
             <div className="flex flex-col gap-2">
-              <h3 className="font-sans text-[22px] font-bold leading-[1.3] text-ink">
+              <h2 className="font-sans text-[22px] font-bold leading-[1.3] text-ink">
                 {artifact.title}
                 {artifact.meets && artifact.meets.length > 0 && (
                   <span className="font-normal text-muted-ink"> - Meets {artifact.meets.join(', ')}</span>
                 )}
-              </h3>
+              </h2>
               {artifact.description && (
                 <p className="font-sans text-[20px] text-ink">{artifact.description}</p>
               )}
@@ -31,7 +31,7 @@ export function ArtifactRow({ slug, artifacts }: { slug: string; artifacts: Arti
                   href={artifactUrl(slug, file.filename)}
                   target="_blank"
                   rel="noopener"
-                  aria-label={`Access artifact: ${artifact.title}`}
+                  aria-label={`Access artifact: ${artifact.title} (opens in new tab)`}
                 >
                   Access Artifact
                 </a>

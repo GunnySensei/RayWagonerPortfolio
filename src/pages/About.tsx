@@ -1,9 +1,9 @@
 import { PageContainer } from '@/components/layout/PageContainer';
-import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { usePageMeta } from '@/lib/usePageMeta';
 
 // Full bio/education history — see assets/ARCHITECTURE.md §6 for the Home/About split.
 export function About() {
-  useDocumentTitle('About Me');
+  usePageMeta('About Me', "About Raymond Wagoner, PhD candidate in counselor education.");
 
   return (
     <PageContainer>

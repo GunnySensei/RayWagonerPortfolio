@@ -5,6 +5,12 @@ import { cn } from '@/lib/utils';
 // lines up with the nav above it. See assets/DESIGN.md §5 Layout Principles.
 export function PageContainer({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <main className={cn('mx-auto max-w-[1280px] px-6 py-12 md:px-10', className)}>{children}</main>
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className={cn('mx-auto max-w-[1280px] px-6 py-12 md:px-10 focus:outline-none', className)}
+    >
+      {children}
+    </main>
   );
 }

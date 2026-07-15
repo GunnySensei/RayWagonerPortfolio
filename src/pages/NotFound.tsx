@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
-import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { usePageMeta } from '@/lib/usePageMeta';
 
 // Catch-all 404 — styled consistently with the rest of the site, not a bare
 // browser error page. See assets/ARCHITECTURE.md §6 Site Map & Routing.
 export function NotFound() {
-  useDocumentTitle('Not Found');
+  usePageMeta('Not Found', 'The page you requested could not be found.');
 
   return (
     <PageContainer>
