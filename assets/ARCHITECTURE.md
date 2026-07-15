@@ -251,9 +251,16 @@ shadcn/ui components default to rounded corners and a neutral gray palette — b
 
 - `npm run dev` — local Vite dev server
 - `npm run build` — static output to `dist/`
-- `npm run preview` — serve the production build locally, useful while no domain is chosen
+- `npm run preview` — serve the production build locally
 - No environment secrets required beyond an optional `VITE_CONTACT_FORM_ENDPOINT` if a third-party form service is used
-- Once a domain/host is picked, deployment is: point that host at `dist/` (or its native build command, e.g. `npm run build` on Netlify/Vercel) — nothing else in this architecture changes
+
+**Hosting: Cloudflare Pages, domain via Cloudflare Registrar.** Connected directly to the GitHub repo (`GunnySensei/RayWagonerPortfolio`) — every push to `main` triggers an automatic build (`npm run build`, output `dist/`) and deploy; every other branch/PR gets its own preview URL for free. Free tier (500 builds/month, unlimited bandwidth) comfortably covers this site. Domain attaches under the Pages project's Custom Domains tab — trivial since the domain and the Pages project live in the same Cloudflare account, so DNS self-configures.
+
+**SPA fallback required:** since routing is client-side (`react-router-dom`), there's no literal `dist/portfolio/teaching/index.html` file — direct navigation or a refresh on any non-root route 404s at the edge without a rewrite rule. `public/_redirects` (copied verbatim into `dist/` by Vite) handles this:
+```
+/*    /index.html   200
+```
+This is Cloudflare Pages' own redirect-file convention (same idea, different syntax, on Netlify/Vercel if the host ever changes).
 
 ## 10. Explicit Non-Goals
 
@@ -264,6 +271,6 @@ shadcn/ui components default to rounded corners and a neutral gray palette — b
 
 ## 11. Open Decisions (deferred, not blocking)
 
-- Final hosting domain/provider — architecture doesn't depend on this choice
+- ~~Final hosting domain/provider~~ — resolved: Cloudflare Pages + Cloudflare Registrar (see §9). Domain name itself still TBD.
 - Whether the Contact page uses a bare `mailto:` or a third-party form endpoint
-- Whether individual artifact files will need Git LFS (depends on actual file sizes once gathered)
+- Whether individual artifact files will need Git LFS (depends on actual file sizes once gathered) — currently 35MB total across 78 files, none over 10MB, so not needed yet
