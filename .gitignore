@@ -1,0 +1,29 @@
+# Wix editor design-reference exports (large, local-only; tokens extracted into assets/DESIGN.md)
+assets/example/
+
+# Raw delivered portfolio content — personal/sensitive academic documents (licenses, evaluations,
+# working drafts) and large source files (docx/pptx/pdf). The curated public-facing subset gets
+# copied into public/artifacts/ per assets/ARCHITECTURE.md; this raw folder stays local-only.
+assets/PhD Portfolio/
+assets/PhD Portfolio.zip
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Editor/OS
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
