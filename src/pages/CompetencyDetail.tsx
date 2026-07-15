@@ -1,14 +1,15 @@
 import { useParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { ArtifactList } from '@/components/portfolio/ArtifactList';
-import { ArtifactRow } from '@/components/portfolio/ArtifactRow';
 import { CategoryGroup } from '@/components/portfolio/CategoryGroup';
 import { NotFound } from '@/pages/NotFound';
 import { usePageMeta } from '@/lib/usePageMeta';
 import { competencies } from '@/content/competencies';
 
 // Generic competency page — looks up its data by :slug and renders whichever
-// of the three DESIGN.md §4 patterns that competency uses.
+// of the two DESIGN.md §4 patterns that competency uses (Artifact List or
+// Category Groups — Artifact Row was retired once every lettered competency
+// page moved to List, see DESIGN.md §4).
 export function CompetencyDetail() {
   const { slug } = useParams<{ slug: string }>();
   const competency = competencies.find((c) => c.slug === slug);
@@ -46,9 +47,6 @@ export function CompetencyDetail() {
 
         {competency.artifactLayout === 'list' && (
           <ArtifactList slug={competency.slug} artifacts={competency.artifacts} />
-        )}
-        {competency.artifactLayout === 'row' && (
-          <ArtifactRow slug={competency.slug} artifacts={competency.artifacts} />
         )}
         {competency.artifactLayout === 'category' && (
           <CategoryGroup slug={competency.slug} groups={competency.requirementGroups} />

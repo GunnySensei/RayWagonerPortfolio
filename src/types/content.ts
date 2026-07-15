@@ -6,6 +6,8 @@ export interface ArtifactFile {
   label: string;
   /** Relative to public/artifacts/<slug>/. Absent for plain-text/no-file list items. */
   filename?: string;
+  /** Short per-file caption — what this specific file is/demonstrates. Real copy from Ray, not a placeholder. */
+  description?: string;
 }
 
 export interface Artifact {
@@ -13,7 +15,7 @@ export interface Artifact {
   title: string;
   /** Expanded competency letters, e.g. ["A","B","C"]. Absent for background/experience entries with no competency mapping. */
   meets?: string[];
-  /** Short description. Real copy or the "Description coming soon." placeholder — see ARCHITECTURE.md §4 Content Import Process. */
+  /** Optional artifact-level description, separate from any per-file descriptions in `files`. */
   description?: string;
   /** 0, 1, or many. Entries may themselves lack `filename` (plain text, no document). */
   files: ArtifactFile[];
@@ -45,7 +47,7 @@ interface CompetencyBase {
 
 export type Competency =
   | (CompetencyBase & {
-      artifactLayout: 'list' | 'row';
+      artifactLayout: 'list';
       /** e.g. "CACREP Doctoral Competencies (2024)" */
       categoryLabel: string;
       /** This page's own lettered statements — never shared across competencies */

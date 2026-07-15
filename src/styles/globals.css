@@ -8,15 +8,12 @@
 
 @theme {
   /* Colors — assets/DESIGN.md §2. Exactly five, plus the one sanctioned Muted Ink
-     exception (§3) and the two Artifact Row tones derived from existing tokens (§4).
-     Don't add a sixth hue without updating DESIGN.md first. */
+     exception (§3). Don't add a sixth hue without updating DESIGN.md first. */
   --color-ink: #142426;
   --color-muted-ink: rgba(20, 36, 38, 0.65);
   --color-forest: #2f5f48;
   --color-sage-label: #638673;
   --color-card-sage: #bdd7d4;
-  --color-row-tint: #f2f5f0;
-  --color-row-divider: rgba(20, 36, 38, 0.12);
   --color-canvas: #fffdf7;
 
   /* Fonts — assets/DESIGN.md §3 */

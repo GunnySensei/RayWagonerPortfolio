@@ -43,6 +43,9 @@ export function ArtifactList({ slug, artifacts }: { slug: string; artifacts: Art
                     ) : (
                       file.label
                     )}
+                    {file.description && (
+                      <span className="text-muted-ink"> — {file.description}</span>
+                    )}
                   </li>
                 ))}
               </ul>

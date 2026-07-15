@@ -57,7 +57,7 @@ Adopted as specified:
 │   ├── components/
 │   │   ├── ui/                    # shadcn/ui primitives (button, card, badge, navigation-menu)
 │   │   ├── layout/                # Nav, Footer, PageContainer
-│   │   └── portfolio/             # CompetencyCard, ArtifactList, ArtifactRow
+│   │   └── portfolio/             # CompetencyCard, ArtifactList, CategoryGroup
 │   ├── lib/
 │   │   ├── utils.ts               # cn() = clsx + tailwind-merge
 │   │   └── artifacts.ts           # artifactUrl(slug, filename) helper
@@ -77,13 +77,15 @@ Adopted as specified:
 
 ## 4. Content Model
 
-All page copy and the artifact manifest live in one typed source of truth (`src/content/competencies.ts`), not scattered across JSX. The hub page maps over it to render cards; the detail page looks up one entry by route slug and renders its content in whichever of the three layouts (see `DESIGN.md` §4, "Competency Detail Page") that competency uses.
+All page copy and the artifact manifest live in one typed source of truth (`src/content/competencies.ts`), not scattered across JSX. The hub page maps over it to render cards; the detail page looks up one entry by route slug and renders its content in whichever of the two layouts (see `DESIGN.md` §4, "Competency Detail Page") that competency uses.
 
-All six competency RTFs have now been read in full and converted to markdown (`assets/PhD Portfolio/*/PDFs for Web */*.md`, one per competency, gitignored alongside their source folder — see §5). That confirms the shape needed, and surfaced one structural fact that changes the model from what was originally assumed: **Professional Identity isn't a variant of the artifact-based pages — it has no CACREP competency letters at all**, and needs a third, differently-shaped content type. The other five findings refine the `Artifact` shape:
+All six competency RTFs have been read in full and converted to markdown (`assets/PhD Portfolio/*/PDFs for Web */*.md`, one per competency, gitignored alongside their source folder — see §5), and Ray has since supplied real per-file descriptions directly. That confirmed the shape needed, and surfaced findings that shaped the `Artifact` type:
 - An artifact's title is freeform text, often carrying a course-code prefix (`"710 CoLeadership Reflection"`)
 - The competencies an artifact satisfies are expressed as letter ranges/lists (`"A, B, C"`, `"A-G"`, `"A - D, F - H"`) and should be normalized to an expanded `string[]` of letters at authoring time, not stored as raw range text — that's what makes "show everything that satisfies competency H" possible later. **This mapping is optional** — a real "Teaching Experience" entry has no Meets line at all, not even an empty one.
 - An artifact can have **zero, one, or many** associated list items (the raw manifest includes entries like `"Teaching Internship COUC 970, 14-week online course (Fall 2025) (no file)"` — a real experience entry with nothing to link)
 - **Individual list items can themselves lack a file**, independent of the artifact-level zero/one/many count — two real items ("Three semesters of adjunct teaching…", "Three semesters of Faculty teaching…" on the Teaching page) are plain informational text with no document and no "(no file)" annotation either. So `filename` is optional per item, not just the array being possibly empty.
+- **Descriptions turned out to be per-file, not per-artifact.** Real content from Ray attaches a caption to individual files inside an artifact's `files` array, not one blurb for the whole artifact — and it's genuinely partial: a multi-file artifact can have a description on one file and nothing on the rest (real case: "Qualitative Research Coding" on Research and Scholarship, 1 of 5 files described). `Artifact.description` still exists as an optional slot for a whole-artifact blurb, but in practice every real artifact uses per-file `ArtifactFile.description` instead.
+- **Professional Identity isn't a variant of the artifact-based pages — it has no CACREP competency letters at all**, and needs a differently-shaped content type (no `Artifact[]`, no `meets`, no per-file descriptions — see `RequirementGroup`/`EvidenceItem` below).
 - Files are not all PDFs — the manifest includes at least one `_ppt`/PowerPoint file and one `.jpeg` (a photographed license) alongside PDFs, so the content model and hosting strategy must be file-type-agnostic, not "pdf-only"
 - **Every competency's CACREP letter list is genuinely distinct** (different letters, different count, different wording) — there is no shared A–M set to reuse across pages; each `Competency.competencyItems` array must be authored per page from its own RTF
 
@@ -92,12 +94,13 @@ All six competency RTFs have now been read in full and converted to markdown (`a
 interface ArtifactFile {
   label: string;        // display name, e.g. "710 CoLeadership Reflection"
   filename?: string;     // e.g. "710-coleadership-reflection.pdf" — absent for plain-text/no-file list items
+  description?: string;  // real per-file caption from Ray — may be present on some files in an artifact and absent on others
 }
 
 interface Artifact {
   title: string;              // e.g. "Group Counseling Course Leadership Reflection"
   meets?: string[];            // expanded competency letters, e.g. ["A","B","C","D","E","F","G","H","J","L"] — absent for background/experience entries with no competency mapping
-  description?: string;        // short description; may be absent for raw "experience" entries
+  description?: string;        // optional whole-artifact blurb — in practice unused; real descriptions are per-file (see ArtifactFile.description above)
   files: ArtifactFile[];       // 0, 1, or many; entries may themselves lack `filename` (plain text, no document)
 }
 
@@ -121,7 +124,7 @@ interface CompetencyBase {
 
 type Competency =
   | (CompetencyBase & {
-      artifactLayout: 'list' | 'row';
+      artifactLayout: 'list';
       categoryLabel: string;       // "CACREP Doctoral Competencies (2024)"
       competencyItems: string[];   // this page's own lettered statements — never shared across competencies
       artifacts: Artifact[];
@@ -132,20 +135,20 @@ type Competency =
     });
 ```
 
-Confirmed page → `artifactLayout` mapping (see `DESIGN.md` §4 for the full rationale table):
+Confirmed page → `artifactLayout` mapping:
 
-| slug | artifactLayout | Why |
-|---|---|---|
-| `teaching` | `'list'` | Several artifacts group 2–4 files each |
-| `research-and-scholarship` | `'list'` | Two artifacts group 3 and 5 files respectively |
-| `supervision` | `'list'` | Four of seven artifacts group multiple files |
-| `counseling` | `'row'` | Every artifact maps to exactly one file |
-| `leadership-and-advocacy` | `'row'` | Every one of 9 artifacts maps to exactly one file |
-| `professional-identity` | `'category'` | No CACREP letters — organized by requirement category |
+| slug | artifactLayout |
+|---|---|
+| `teaching` | `'list'` |
+| `research-and-scholarship` | `'list'` |
+| `supervision` | `'list'` |
+| `leadership-and-advocacy` | `'list'` |
+| `counseling` | `'list'` |
+| `professional-identity` | `'category'` |
 
-**A `'row'`-layout competency is expected to have exactly one file per artifact** — that's the pattern's whole premise (one "Access Artifact" button per row). If real content for a `'row'` page ever includes a multi-file artifact, that's a signal the page should be `'list'` layout instead, not a case to special-case around.
+**There used to be a third value, `'row'`** (Counseling and Leadership and Advocacy — a filled "Access Artifact" button per single-file row, since every artifact on those two pages maps to exactly one file). Once real content was in hand, Ray asked for those two to visually match the other four instead. `'row'` is gone from the type entirely — not deprecated, removed — along with `ArtifactRow.tsx` and its Do's/Don'ts documentation in `DESIGN.md`. If a future competency page is ever genuinely single-file-only again, that's a decision to make fresh, not a pattern to resurrect by default.
 
-Adding a new artifact is: drop its file(s) in `public/artifacts/<slug>/`, add one `Artifact` (or `RequirementGroup`, for Professional Identity) entry to that competency's array. No component code changes required — the three layout components render whatever's in the data.
+Adding a new artifact is: drop its file(s) in `public/artifacts/<slug>/`, add one `Artifact` (or `RequirementGroup`, for Professional Identity) entry to that competency's array. No component code changes required — the two layout components render whatever's in the data.
 
 ## 5. Artifact File Hosting Strategy
 
@@ -176,8 +179,10 @@ This is a manual transcription step, not an automated RTF parser — six compete
 **Content gaps found during conversion — resolved decisions:**
 - **Counseling — "998 Case Conceptualization" (Meets A–F):** no web PDF exists, only a `.pptx` in the raw folder. **Decision: don't convert to PDF — copy the `.pptx` itself into `PDFs for Web Counseling/` and link to it directly**, same as any other artifact file. This matches the architecture's existing file-type-agnostic stance (§5): the link opens with `target="_blank"`, and the browser/OS decides whether to preview or download it — no embedded viewer is added just for this one file. Note the practical caveat: most browsers will download a `.pptx` rather than render it inline (unlike a PDF, which most browsers preview natively) — that's expected and consistent with "no embedded viewer for any file type," not a bug to fix.
 - **Supervision — the "Supervision Reflection" title collision:** resolved by using the words already present in the underlying filenames rather than inventing new phrasing. The grouped artifact (covering `714 Initial Session Reflection` + `714 Second Session Reflection`) is titled **"Initial and Second Session Reflections"**; the unrelated single-file `710 Supervision Reflection` keeps its own title unchanged. Updated in `Supervision Competencies.md`.
-- **Descriptions (Counseling, Leadership and Advocacy, Research and Scholarship, Supervision):** these four pages' RTFs give title + Meets + file(s) but no narrative description text (Teaching's descriptions exist only because they were authored directly in the Wix mockup, not captured in any RTF). **Decision: use a literal placeholder string for every missing description, to be replaced with real copy later** — not fabricated specifics about Ray's actual coursework. Use the exact text `"Description coming soon."` for every placeholder (same styling as a real description, no special muted/italic treatment — see `DESIGN.md` §4) so a future find-and-replace across `content/competencies.ts` can locate every unwritten one. This applies to the `Artifact.description` field only; Category Groups entries (Professional Identity) don't have a description field to placeholder.
+- **Descriptions — resolved with real content, not the placeholder policy originally planned.** The RTFs alone gave title + Meets + file(s) with no narrative text, so every artifact briefly carried a literal `"Description coming soon."` placeholder. Ray has since sent real descriptions for essentially every file across all five `'list'` pages (46 artifacts), delivered as the filled-in worksheet (`assets/Artifact-Descriptions-Worksheet.md`) — see §4 for why these landed as per-file `ArtifactFile.description`, not the artifact-level field the worksheet's blank was designed for. A small number of individual files remain undescribed (e.g. 4 of 5 files under "Qualitative Research Coding") — those simply have no `description` set, not a placeholder; nothing to find-and-replace anymore.
+- **One transcription flagged, not silently corrected:** the "Qualitative Research Coding" artifact's one description reads "…quantitative statistical analysis," but the artifact title and its Meets letter (C, "Qualitative approaches to data analysis") both say qualitative. Transcribed exactly as sent — worth Ray confirming before treating as final. See `DESIGN.md` Known Gaps.
 - **Professional Identity — "Curriculum Vitae":** resolved. Ray supplied `RAYMOND WAGONER CV.docx` separately (not in the original delivered folder); converted to PDF via Word/AppleScript (no LibreOffice on this machine — `osascript` driving Microsoft Word's `save as ... file format format PDF` worked cleanly) and added as `public/artifacts/professional-identity/raymond-wagoner-cv.pdf`. **Flag, not fixed:** the CV itself lists a home address and phone number, which become publicly downloadable once the site ships — worth Ray explicitly confirming he wants that public rather than assuming so.
+- **Counseling and Leadership and Advocacy — Row → List layout:** these two shipped as `'row'` (single-file, filled "Access Artifact" button) once real content confirmed every artifact on both pages maps to exactly one file. Once descriptions arrived and both pages were visible with real content, Ray asked for them to visually match the other four `'list'` pages instead — plain file links, no button. `'row'` is fully removed from the type, not just unused on these two pages (see §4).
 
 No content gaps remain open as of this writing — the six competency pages are fully populated with real artifacts, and Professional Identity's CV requirement is satisfied.
 
