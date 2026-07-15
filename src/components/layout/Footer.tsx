@@ -16,6 +16,15 @@ export function Footer() {
         >
           {site.contactEmail}
         </a>
+        <a
+          href={site.linkedinUrl}
+          target="_blank"
+          rel="noopener"
+          className="font-sans text-[16px] text-forest underline-offset-4 hover:underline"
+        >
+          LinkedIn
+          <span className="sr-only"> (opens in new tab)</span>
+        </a>
       </div>
     </footer>
   );

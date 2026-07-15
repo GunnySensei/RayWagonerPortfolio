@@ -23,9 +23,15 @@ export function Contact() {
           </a>
           .
         </p>
-        <div>
+        <div className="flex flex-wrap gap-4">
           <Button asChild variant="outline">
             <a href={`mailto:${site.contactEmail}`}>Send an Email</a>
+          </Button>
+          <Button asChild variant="outline">
+            <a href={site.linkedinUrl} target="_blank" rel="noopener">
+              LinkedIn
+              <span className="sr-only"> (opens in new tab)</span>
+            </a>
           </Button>
         </div>
       </div>

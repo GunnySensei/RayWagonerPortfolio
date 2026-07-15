@@ -368,7 +368,7 @@ export const competencies: Competency[] = [
       {
         heading: "Curriculum Vitae",
         items: [
-          { kind: "note", text: "No file present yet" },
+          { kind: "file", label: "Raymond Wagoner, CV", filename: "raymond-wagoner-cv.pdf" },
         ],
       },
     ],
