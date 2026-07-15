@@ -1,0 +1,13 @@
+{
+  // Cloudflare Worker config for static-asset hosting — see assets/ARCHITECTURE.md §9.
+  // No server-side Worker code; this is assets-only (matches the "no backend" architecture).
+  "name": "ray-wagoner-portfolio",
+  "compatibility_date": "2026-07-15",
+  "assets": {
+    "directory": "./dist",
+    // Client-side routing (react-router-dom) means non-root paths have no literal
+    // dist/portfolio/teaching/index.html file — this serves index.html for any
+    // unmatched path instead of a 404, same job public/_redirects did for Pages.
+    "not_found_handling": "single-page-application"
+  }
+}

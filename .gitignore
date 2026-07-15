@@ -16,6 +16,9 @@ dist-ssr/
 build/
 *.local
 
+# Wrangler local cache/state
+.wrangler/
+
 # Env
 .env
 .env.local
