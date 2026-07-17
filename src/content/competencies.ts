@@ -315,13 +315,14 @@ export const competencies: Competency[] = [
       {
         heading: "Attendance to two or more State or National Counseling Conferences",
         items: [
-          { kind: "note", text: "No file — just space to write my attendance" },
+          { kind: "note", text: "AACC World Conference, September 2023, Nashville, Tennessee" },
+          { kind: "note", text: "AACC National Conference, October 2024, Arlington, Texas" },
         ],
       },
       {
         heading: "Proficiency in electronic course management system and computer technology skills",
         items: [
-          { kind: "note", text: "Faculty experience with John Brown University (No File)" },
+          { kind: "note", text: "Faculty experience with John Brown University (Blackboard) (No File)" },
         ],
       },
       {

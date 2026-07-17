@@ -35,7 +35,7 @@ export function CompetencyDetail() {
             <p className="font-sans text-[22.5px] font-bold leading-[29.25px] text-sage-label">
               {competency.categoryLabel}
             </p>
-            <ul className="list-disc pl-6">
+            <ul className="list-none flex flex-col">
               {competency.competencyItems.map((item) => (
                 <li key={item} className="font-sans text-[20px] leading-[36px] text-ink">
                   {item}
